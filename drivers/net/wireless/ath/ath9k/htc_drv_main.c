@@ -180,6 +180,8 @@ static void ath9k_htc_set_opmode(struct ath9k_htc_priv *priv)
 		priv->ah->opmode = NL80211_IFTYPE_ADHOC;
 	else if (priv->num_ap_vif)
 		priv->ah->opmode = NL80211_IFTYPE_AP;
+	else if (priv->num_mbss_vif)
+		priv->ah->opmode = NL80211_IFTYPE_MESH_POINT;
 	else
 		priv->ah->opmode = NL80211_IFTYPE_STATION;
 
@@ -1052,6 +1054,9 @@ static int ath9k_htc_add_interface(struct ieee80211_hw *hw,
 	case NL80211_IFTYPE_AP:
 		hvif.opmode = HTC_M_HOSTAP;
 		break;
+	case NL80211_IFTYPE_MESH_POINT:
+		hvif.opmode = HTC_M_WDS;	/* close enough */
+		break;
 	default:
 		ath_err(common,
 			"Interface type %d not yet supported\n", vif->type);
@@ -1084,6 +1089,7 @@ static int ath9k_htc_add_interface(struct ieee80211_hw *hw,
 	INC_VIF(priv, vif->type);
 
 	if ((vif->type == NL80211_IFTYPE_AP) ||
+	    (vif->type == NL80211_IFTYPE_MESH_POINT) ||
 	    (vif->type == NL80211_IFTYPE_ADHOC))
 		ath9k_htc_assign_bslot(priv, vif);
 
@@ -1134,6 +1140,7 @@ static void ath9k_htc_remove_interface(struct ieee80211_hw *hw,
 	DEC_VIF(priv, vif->type);
 
 	if ((vif->type == NL80211_IFTYPE_AP) ||
+	     vif->type == NL80211_IFTYPE_MESH_POINT ||
 	    (vif->type == NL80211_IFTYPE_ADHOC))
 		ath9k_htc_remove_bslot(priv, vif);
 
@@ -1144,7 +1151,9 @@ static void ath9k_htc_remove_interface(struct ieee80211_hw *hw,
 	/*
 	 * Stop ANI only if there are no associated station interfaces.
 	 */
-	if ((vif->type == NL80211_IFTYPE_AP) && (priv->num_ap_vif == 0)) {
+	if ((vif->type == NL80211_IFTYPE_AP ||
+	     vif->type == NL80211_IFTYPE_MESH_POINT) &&
+	    (priv->num_ap_vif == 0)) {
 		priv->rearm_ani = false;
 		ieee80211_iterate_active_interfaces_atomic(
 			priv->hw, IEEE80211_IFACE_ITER_RESUME_ALL,
