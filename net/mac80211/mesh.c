@@ -973,6 +973,7 @@ int ieee80211_start_mesh(struct ieee80211_sub_if_data *sdata)
 	setup.sync_method = ifmsh->mesh_pm_id;
 	setup.path_metric = ifmsh->mesh_cc_id;
 	setup.is_secure = ifmsh->security & IEEE80211_MESH_SEC_SECURED;
+	setup.shared = ifmsh->share_mbss;
 
 	ret = mesh_bss_add(sdata, &setup);
 	if (ret) {
