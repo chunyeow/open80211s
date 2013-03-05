@@ -212,10 +212,18 @@ static int mesh_path_sel_frame_tx(enum mpath_frame_type action, u8 flags,
 {
 	struct mesh_local_bss *mbss = sdata->u.mesh.mesh_bss;
 	struct ieee80211_sub_if_data *tmp_sdata;
+	bool broadcast = is_broadcast_ether_addr(da);
+	struct sta_info *sta;
 	int ret = 0;
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(tmp_sdata, &mbss->if_list, u.mesh.if_list) {
+		if (!broadcast) {
+			/* find right outgoing interface */
+			sta = sta_info_get(tmp_sdata, da);
+			if (!sta)
+				continue;
+		}
 		ret = __mesh_path_sel_frame_tx(action, flags, orig_addr, orig_sn,
 					 target_flags, target, target_sn,
 					 da, hop_count, ttl,
