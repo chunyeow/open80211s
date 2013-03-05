@@ -2101,6 +2101,8 @@ ieee80211_rx_h_mesh_fwding(struct ieee80211_rx_data *rx)
 		/* update power mode indication when forwarding */
 		ieee80211_mps_set_frame_flags(sdata, NULL, fwd_hdr);
 	} else if (!mesh_nexthop_lookup(sdata, fwd_skb)) {
+		/* next hop may be on a different PHY */
+		local = vif_to_sdata(info->control.vif)->local;
 		/* mesh power mode flags updated in mesh_nexthop_lookup */
 		IEEE80211_IFSTA_MESH_CTR_INC(ifmsh, fwded_unicast);
 	} else {
