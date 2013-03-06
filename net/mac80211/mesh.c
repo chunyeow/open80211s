@@ -1055,6 +1055,8 @@ void ieee80211_stop_mesh(struct ieee80211_sub_if_data *sdata)
 	atomic_dec(&local->iff_allmultis);
 	ieee80211_configure_filter(local);
 
+	netif_tx_stop_all_queues(sdata->dev);
+
 	mesh_bss_remove(sdata);
 }
 
