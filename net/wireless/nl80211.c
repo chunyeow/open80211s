@@ -4803,7 +4803,8 @@ static int nl80211_parse_mesh_setup(struct genl_info *info,
 	if (setup->is_secure)
 		setup->user_mpm = true;
 
-	setup->shared = nla_get_flag(tb[NL80211_MESH_SETUP_CAN_SHARE]);
+	if (tb[NL80211_MESH_SETUP_CAN_SHARE])
+		setup->shared = nla_get_u8(tb[NL80211_MESH_SETUP_CAN_SHARE]);
 
 	return 0;
 }
