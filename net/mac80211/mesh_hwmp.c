@@ -334,6 +334,8 @@ int mesh_path_error_tx(struct ieee80211_sub_if_data *sdata,
 	ifmsh->next_perr = TU_TO_EXP_TIME(
 				   ifmsh->mshcfg.dot11MeshHWMPperrMinInterval);
 	ieee80211_add_pending_skb(local, skb);
+	if (is_multicast_ether_addr(mgmt->da))
+		mesh_bss_forward_tx(sdata, skb);
 	return 0;
 }
 
