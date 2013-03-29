@@ -328,9 +328,8 @@ static void mesh_path_move_to_queue(struct mesh_path *gate_mpath,
 	spin_unlock_irqrestore(&from_mpath->frame_queue.lock, flags);
 }
 
-
-static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
-				      struct ieee80211_sub_if_data *sdata)
+static struct mesh_path *__mpath_lookup(struct mesh_table *tbl, const u8 *dst,
+					struct ieee80211_sub_if_data *sdata)
 {
 	struct mesh_path *mpath;
 	struct hlist_head *bucket;
@@ -348,6 +347,21 @@ static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
 			}
 			return mpath;
 		}
+	}
+	return NULL;
+}
+
+static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
+				      struct ieee80211_sub_if_data *sdata)
+{
+	struct mesh_local_bss *mbss = sdata->u.mesh.mesh_bss;
+	struct ieee80211_sub_if_data *tmp_sdata;
+	struct mesh_path *mpath;
+
+	list_for_each_entry_rcu(tmp_sdata, &mbss->if_list, u.mesh.if_list) {
+		mpath = __mpath_lookup(tbl, dst, tmp_sdata);
+		if (mpath)
+			return mpath;
 	}
 	return NULL;
 }
