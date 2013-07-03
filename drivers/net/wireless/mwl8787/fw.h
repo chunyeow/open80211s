@@ -37,7 +37,7 @@
 #define MWL8787_ACT_SET				1
 
 enum mwl8787_cmd_id {
-	MWL8787_CMD_RESET = 0x0003,
+	MWL8787_CMD_RESET = 0x0005,
 };
 
 struct mwl8787_cmd_reset {
